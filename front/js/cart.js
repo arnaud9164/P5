@@ -158,7 +158,88 @@ document.querySelector("#order").addEventListener("click", (event) => {
   }
   console.log(cart);
   console.log(product_cmd);
-  // function test contact data + message erreur 
+  
+  let valid_data = testValidContact(contact);
+  console.log(valid_data);
+
+  if(valid_data){
+    postDataOrder(contact, product_cmd);
+  } else{
+    return null;
+  }
+});
+
+
+// function test contact data REG_EX + message erreur 
+function testValidContact(contact){
+   // MAsque regEx validation formulaire
+   const REG_EX_MASK_NAME = /^[A-Za-z]{2,38}$/;
+   const REG_EX_MASK_ADDRESS =  /^[0-9]{1,5}\s+[A-Za-zéèàïêç\-\s]{2,50}$/;
+   const REG_EX_MASK_CITY = /^[A-Za-zéèàïêç\-\s]{1,50}\s+[0-9]{5}$/; // City + zip code
+   const REG_EX_MASK_MAIL =  /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+   // Vérification si la fonction return vrai ou faux
+  let firstname_valid = REG_EX_MASK_NAME.test(contact.firstName);
+  let lastname_valid = REG_EX_MASK_NAME.test(contact.lastName);
+  let adress_valid = REG_EX_MASK_ADDRESS.test(contact.address);
+  let city_valid = REG_EX_MASK_CITY.test(contact.city);
+  let email_valid = REG_EX_MASK_MAIL.test(contact.email);
+
+  //console.log(firstname_valid);
+  //console.log(lastname_valid);
+  //console.log(adress_valid);
+  //console.log(contact.city);
+  //console.log(city_valid);
+  //console.log(email_valid);
+  if (!firstname_valid){
+    // Error
+    document.querySelector("#firstNameErrorMsg").innerText = "Merci de renseigner votre Prenom";
+  }
+  if (!lastname_valid){
+    // Error
+    document.querySelector("#lastNameErrorMsg").innerText = "Merci de renseigner votre Nom";
+  }
+  if (!adress_valid){
+    // Error
+    document.querySelector("#addressErrorMsg").innerText = "Renseigner votre adresse";
+  }
+  if (!city_valid){
+    // Error
+    document.querySelector("#cityErrorMsg").innerText = "Renseigner votre ville et votre code postal.";
+  }
+  if (!email_valid){
+    // Error
+    document.querySelector("#emailErrorMsg").innerText = "E-mail non valide.";
+  }
+
+  if (firstname_valid && lastname_valid && adress_valid && city_valid && email_valid){
+    return true;
+  } else {
+    return false;
+  }
+}
 
   // function POST API + confirmation id
-});
+  function postDataOrder(contact, products){
+    fetch("http://localhost:3000/api/products/order", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      contact: contact,
+      products: products,
+    }),
+  }).then(async (response) => {
+    try {
+      const POST_ORDER = await response.json();
+      let orderId = POST_ORDER.orderId;
+
+      // Clear le localStorage
+      localStorage.clear();
+      window.location.assign("confirmation.html?id=" + orderId);
+    } catch (error) {
+      console.log(error);
+    }
+  });
+}
