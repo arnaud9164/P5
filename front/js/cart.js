@@ -1,3 +1,6 @@
+const Url_Api ="http://localhost:3000/api/products/";
+const Url_Api_Order = "http://localhost:3000/api/products/order";
+
 // Recuperation du panier
 let cart = JSON.parse(localStorage.getItem("product_panier"));
 //console.log(cart);
@@ -11,7 +14,7 @@ async function getAPIProducts(products) {
         try {
             for (let i = 0; i < products.length; i++) {
                 let api_product = null;
-                await fetch(`http://localhost:3000/api/products/` + products[i].id)
+                await fetch(Url_Api + products[i].id)
                 .then((res) => res.json())
                 .then((data) => (api_product = data));
         
@@ -221,7 +224,7 @@ function testValidContact(contact){
 
   // function POST API + confirmation id
   function postDataOrder(contact, products){
-    fetch("http://localhost:3000/api/products/order", {
+    fetch(Url_Api_Order, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

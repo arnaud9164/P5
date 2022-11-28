@@ -1,9 +1,11 @@
+const Url_Api ="http://localhost:3000/api/products/";
+
 // Récuperation id produit
 let product_id = new URLSearchParams(window.location.search).get("_id");
 console.log(product_id);
 
 // Récuperation des data API
-fetch("http://localhost:3000/api/products/" + product_id)  
+fetch(Url_Api + product_id)  
     .then(function(res) {
         if (res.ok) {
         return res.json();
