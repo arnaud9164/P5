@@ -31,33 +31,74 @@ async function getAPIProducts(products) {
         }
     }      
 }
+
 // Affichage des produits
-  function displayProducts() {
-    let cart_items = document.querySelector("#cart__items");
-    cart_items.innerHTML = api_products.map((product) => {
-        return `<article class="cart__item" data-id="${product._id}" data-color="${product.color}">
-      <div class="cart__item__img">
-        <img src="${product.imageUrl}" alt="${product.altTxt}">
-      </div>
-      <div class="cart__item__content">
-        <div class="cart__item__content__description">
-          <h2>${product.name}</h2>
-          <p>${product.color}</p>
-          <p>${product.price} €</p>
-        </div>
-        <div class="cart__item__content__settings">
-          <div class="cart__item__content__settings__quantity">
-            <p>Qté : </p>
-            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${product.quantity}">
-          </div>
-          <div class="cart__item__content__settings__delete">
-            <p class="deleteItem" >Supprimer</p>
-          </div>
-        </div>
-      </div>
-    </article>`;
-      })
-  }
+function displayProducts() {
+  const cart_items = document.querySelector("#cart__items");
+  console.log(api_products);
+    for (let i = 0; i < api_products.length; i++) { 
+      let newArticle = document.createElement("article");
+      newArticle.className = "cart__item";
+      newArticle.dataset.id = api_products[i]._id;
+      newArticle.dataset.color = api_products[i].color;
+      cart_items.appendChild(newArticle);
+
+      let imgContainer = document.createElement("div");
+      imgContainer.className = "cart__item__img";
+      newArticle.appendChild(imgContainer);
+      let newImg = document.createElement("img");
+      newImg.src = api_products[i].imageUrl;
+      newImg.alt = api_products[i].altTxt;
+      imgContainer.appendChild(newImg);
+
+      let contentContainer = document.createElement("div");
+      contentContainer.className = "cart__item__content";
+      newArticle.appendChild(contentContainer);
+      let descriptionContainer = document.createElement("div");
+      descriptionContainer.className = "cart__item__content__description";
+      contentContainer.appendChild(descriptionContainer);
+      let newName = document.createElement("h2");
+      let nameContent = document.createTextNode(api_products[i].name);
+      newName.appendChild(nameContent);
+      descriptionContainer.appendChild(newName);
+      let newColor = document.createElement("p");
+      let colorContent = document.createTextNode(api_products[i].color);
+      newColor.appendChild(colorContent);
+      descriptionContainer.appendChild(newColor);
+      let newPrice = document.createElement("p");
+      let priceContent = document.createTextNode(api_products[i].price + " €");
+      newPrice.appendChild(priceContent);
+      descriptionContainer.appendChild(newPrice);
+
+      let settingContainer = document.createElement("div");
+      settingContainer.className = "cart__item__content__settings";
+      contentContainer.appendChild(settingContainer);
+      let settingQty = document.createElement("div");
+      settingQty.className = "cart__item__content__settings__quantity";
+      settingContainer.appendChild(settingQty);
+      let newQtyLabel = document.createElement("p");
+      let QtyLabelContent = document.createTextNode("Qté : ");
+      newQtyLabel.appendChild(QtyLabelContent);
+      settingQty.appendChild(newQtyLabel);
+      let newQtyInput = document.createElement("input")
+      newQtyInput.type = "number";
+      newQtyInput.className = "itemQuantity";
+      newQtyInput.name = "itemQuantity";
+      newQtyInput.min = "1";
+      newQtyInput.max = "100";
+      newQtyInput.value = api_products[i].quantity;
+      settingQty.appendChild(newQtyInput);
+
+      let settingDelete = document.createElement("div");
+      settingDelete.className = "cart__item__content__settings__delete";
+      settingContainer.appendChild(settingDelete);
+      let newDeleteBtn = document.createElement("p");
+      newDeleteBtn.className = "deleteItem";
+      let DeleteBtnContent = document.createTextNode("Supprimer");
+      newDeleteBtn.appendChild(DeleteBtnContent);
+      settingDelete.appendChild(newDeleteBtn); 
+    }
+}
 
 // Calcul prix total et nombre article dans le panier
 function CalculTotalQuantityPrice() {
@@ -143,7 +184,7 @@ function listenQuantityEvents() {
 
 // Fonction passer commande
 // Récupérer et analyser les données saisies par l’utilisateur dans le formulaire
-// Afficher un message d’erreur si besoin (par exemple lorsqu’un utilisateur renseigne “bonjour” dans le champ “e-mail”)
+// Afficher un message d’erreur si besoin
 // Constituer un objet contact (à partir des données du formulaire) et un tableau de produits
 document.querySelector("#order").addEventListener("click", (event) => {
   event.preventDefault();

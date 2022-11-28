@@ -2,7 +2,6 @@ const Url_Api ="http://localhost:3000/api/products/";
 
 // Récuperation id produit
 let product_id = new URLSearchParams(window.location.search).get("_id");
-console.log(product_id);
 
 // Récuperation des data API
 fetch(Url_Api + product_id)  
@@ -12,26 +11,36 @@ fetch(Url_Api + product_id)
         }
     })
     .then((product) => {
-        console.log(product);
         displayProducts(product);
         listenColorsEvent();
         listenQuantityEvent();
-        
     })
     .catch(function(err) {
     // Une erreur est survenue
+    console.error(err);
   });
 
   // Création item: intégration des data API + boucle gestion colors
 function displayProducts(product){
-    document.querySelector(".item__img").innerHTML += `<img src="${product.imageUrl}" alt="${product.altTxt}">`;
-        document.querySelector("title").innerText =  `KANAP - ${product.name}`;
-        document.querySelector("#title").innerText = `${product.name}`;
-        document.querySelector("#price").innerText = `${product.price}`;
-        document.querySelector("#description").innerText = `${product.description}`;
-        for (let i = 0; i < product.colors.length; i++) {
-            document.querySelector("#colors").innerHTML += `<option value="${product.colors[i]}">${product.colors[i]}</option>`;
-          }
+  const img_container = document.querySelector(".item__img");
+  let newImg = document.createElement("img");
+  newImg.src = product.imageUrl;
+  newImg.alt = product.altTxt;
+  img_container.appendChild(newImg);
+        
+  document.querySelector("title").innerText =  `KANAP - ${product.name}`;
+  document.querySelector("#title").innerText = `${product.name}`;
+  document.querySelector("#price").innerText = `${product.price}`;
+  document.querySelector("#description").innerText = `${product.description}`;
+  
+  for (let i = 0; i < product.colors.length; i++) {
+    const color_container = document.querySelector("#colors");
+    let newColor = document.createElement("option");
+    newColor.value = product.colors[i];
+    let colorDescription = document.createTextNode(product.colors[i]);
+    newColor.appendChild(colorDescription);
+    color_container.appendChild(newColor);
+  }
 }
 
 // Initialisation de l'object panier

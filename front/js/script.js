@@ -8,11 +8,11 @@ fetch(Url_Api)
         }
     })
     .then((product) => {
-        //console.log(product);
         displayProducts(product);  // Appel de la fonction Display
     })
     .catch(function(err) {
     // Une erreur est survenue
+    console.error(err);
   });
 
 // Création items: Boucle x items et intégration des data API
