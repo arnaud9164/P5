@@ -1,26 +1,41 @@
 const Url_Api ="http://localhost:3000/api/products/";
 
-// Récuperation id produit
+// Récuperation id produit dans URL
 let product_id = new URLSearchParams(window.location.search).get("_id");
 
-// Récuperation des data API
+/**
+ * Récuperation des data du produit via son ID (fetch api)
+ * Appel des fonction displayProducts et listenEvent 
+ * @param { String } Url_Api
+ * @param { String } product_id
+ */
 fetch(Url_Api + product_id)  
     .then(function(res) {
         if (res.ok) {
         return res.json();
         }
     })
-    .then((product) => {
-        displayProducts(product);
+    .then((productApi) => {
+        displayProducts(productApi);
         listenColorsEvent();
         listenQuantityEvent();
     })
     .catch(function(err) {
-    // Une erreur est survenue
     console.error(err);
   });
 
-  // Création item: intégration des data API + boucle gestion colors
+
+/**
+ * Affichage du produit
+ * créations des elements à afficher - Boucle x colors
+ * @param { Object } product
+ * @param { String } product.imageUrl
+ * @param { String } product.altTxt
+ * @param { String } product.name
+ * @param { String } product.description
+ * @param { String } product.price
+ * @param { String } product.colors[]
+ */
 function displayProducts(product){
   const img_container = document.querySelector(".item__img");
   let newImg = document.createElement("img");
@@ -43,7 +58,7 @@ function displayProducts(product){
   }
 }
 
-// Initialisation de l'object panier
+// Initialisation de l'object produit à ajouter au panier
 let product_panier = { 
     id : product_id,
     color : "",
@@ -51,21 +66,26 @@ let product_panier = {
   };
  
 
-// Récupere couleur on event change
+// Récupere la couleur quand elle change
 function listenColorsEvent() {
     document.querySelector("#colors").addEventListener("change", (event) => {
       product_panier.color = event.target.value;
     });
   }
   
-  // Récuperer la value de quantité quand elle change
+  // Récupere la quantité quand elle change
   function listenQuantityEvent() {
     document.querySelector("#quantity").addEventListener("change", (event) => {
       product_panier.quantity = parseInt(event.target.value);
     });
   }
 
-// Vérifier couleur et quantite choisi
+/**
+ * Vérifie les input Quantity et color
+ * @param { Object } product_panier
+ * @param { String } product.color
+ * @param { String } product.quantity
+ */
 function verifyInput(product_panier) {
     if((product_panier.color == "") && (product_panier.quantity < 1 || product_panier.quantity > 100)){
         console.log("Veuillez choisir une couleur et une quantité");
@@ -81,7 +101,13 @@ function verifyInput(product_panier) {
     }
   }
 
-// Push du produit dans le panier local storage
+/**
+ * Ajoute le produit dans le panier local storage
+ * @param { Object } product_panier
+ * @param { String } product.id
+ * @param { String } product.color
+ * @param { String } product.quantity
+ */
 function addCard(product_panier) {
     let card = JSON.parse(localStorage.getItem("product_panier"));
     if (card == null) {
@@ -90,7 +116,6 @@ function addCard(product_panier) {
         localStorage.setItem("product_panier", JSON.stringify(card));
     } else {
         let get_article = card.find((card_product) => product_panier.id == card_product.id && product_panier.color == card_product.color);
- //       console.log(get_article);
         if (get_article) {
           let nb = Number(product_panier.quantity) + Number(get_article.quantity);
           if (nb < 100){
@@ -106,7 +131,9 @@ function addCard(product_panier) {
     } return true
 } 
 
-// Click sur le bouton ajouter au panier
+/**
+ * Click sur le bouton ajouter au panier
+ */
 document.getElementById("addToCart").addEventListener("click", function() {
     if(verifyInput(product_panier)){
         addCard(product_panier);

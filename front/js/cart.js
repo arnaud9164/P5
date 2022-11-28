@@ -1,14 +1,29 @@
 const Url_Api ="http://localhost:3000/api/products/";
 const Url_Api_Order = "http://localhost:3000/api/products/order";
 
-// Recuperation du panier
+// Recuperation du panier - Local Storage
 let cart = JSON.parse(localStorage.getItem("product_panier"));
-//console.log(cart);
 
+// Initialisation des data produits du panier
 let api_products = [];
 
 getAPIProducts(cart);
-// Recuperation des data API
+
+
+/**
+ * Récuperation des data using fetch api
+ * A partir du panier local storage on viens construire le tableau 
+ * contenant les data des produits du panier.
+ * Appel des fonctions: displayProducts()
+ *                      CalculTotalQuantityPrice()
+ *                      listenDeleteEvents()
+ *                      listenQuantityEvents()
+ * @param { String } Url_Api
+ * @param { Object[] } products
+ * @param { String } product[]._id
+ * @param { String } product[].color
+ * @param { String } product[].quantity
+ */
 async function getAPIProducts(products) {
   if (products !== null || products != 0) {
         try {
@@ -32,7 +47,11 @@ async function getAPIProducts(products) {
     }      
 }
 
-// Affichage des produits
+/**
+ * Affichage des produits du panier
+ * Boucle x items - créations des elements à afficher
+ * { Object[] } api_products
+ */
 function displayProducts() {
   const cart_items = document.querySelector("#cart__items");
   console.log(api_products);
@@ -102,7 +121,6 @@ function displayProducts() {
 
 // Calcul prix total et nombre article dans le panier
 function CalculTotalQuantityPrice() {
- // console.log("CalculTotalQuantityPrice");
   if (cart === null || cart == 0) {
     document.querySelector("#totalQuantity").innerHTML = "0";
     document.querySelector("#totalPrice").innerHTML = "0";
@@ -128,24 +146,18 @@ function CalculTotalQuantityPrice() {
 // Suppresion d'article au click
 function listenDeleteEvents() {
   let btn_delete = document.querySelectorAll(".cart__item .deleteItem"); // Recuperation de tout les boutons du DOM
-//  console.log(btn_delete);
   for (let i = 0; i < btn_delete.length; i++) { // Ecoute de chaque bouton
     btn_delete[i].addEventListener("click", function() {
       let articleToRemove = btn_delete[i].closest("article"); // Return le DOM de l'article à supprimer
-//      console.log(articleToRemove);
       articleToRemove.remove(); // supprime article du DOM
       let articleToRemove_id = articleToRemove.getAttribute("data-id"); // On récupere ID et color à supprimer pour faire une recherche dans local storage
       let articleToRemove_color = articleToRemove.getAttribute("data-color");
       for (let j = 0; j < api_products.length; j++) {
         if (articleToRemove_id == api_products[j]._id && articleToRemove_color == api_products[j].color){
-//          console.log(cart);
           cart = cart.filter(element => element._id !== api_products[j]._id && element.color !== api_products[j].color);// supprime le produit 
-//          console.log(cart);
         }
-//        console.log(localStorage.getItem("product_panier", JSON.stringify(cart)));
         localStorage.setItem("product_panier", JSON.stringify(cart));
         CalculTotalQuantityPrice(); // On recalcul la quantité et le prix totaux 
-//        console.log(localStorage.getItem("product_panier", JSON.stringify(cart)));
       }
     });
   }
@@ -182,10 +194,13 @@ function listenQuantityEvents() {
 }
 
 
-// Fonction passer commande
-// Récupérer et analyser les données saisies par l’utilisateur dans le formulaire
-// Afficher un message d’erreur si besoin
-// Constituer un objet contact (à partir des données du formulaire) et un tableau de produits
+/** 
+* Fonction passer commande
+* Récupére et fabrique un objet contact(formulaire) et un tableau des id produits
+* Test les données saisies formulaire 
+* True = post sur API les donnée 
+* False = Afficher un message d’erreur
+*/
 document.querySelector("#order").addEventListener("click", (event) => {
   event.preventDefault();
   let contact = {
@@ -195,16 +210,12 @@ document.querySelector("#order").addEventListener("click", (event) => {
     city: document.querySelector("#city").value,
     email: document.querySelector("#email").value,
   };
-  console.log(contact);
   let product_cmd =[];
   for (let i = 0; i < cart.length; i++) { // recupere uniquement ID, doit on push x fois id en fonction du nombre de produit panier ??
     product_cmd.push(cart[i].id);
   }
-  console.log(cart);
-  console.log(product_cmd);
   
   let valid_data = testValidContact(contact);
-  console.log(valid_data);
 
   if(valid_data){
     postDataOrder(contact, product_cmd);
@@ -214,7 +225,18 @@ document.querySelector("#order").addEventListener("click", (event) => {
 });
 
 
-// function test contact data REG_EX + message erreur 
+/**
+ * Test les data contact avec des REG_EX 
+ * Affichage message erreur 
+ * @param { Object } contact
+ * @param { String } contact.firstName
+ * @param { String } contact.lastName
+ * @param { String } contact.address
+ * @param { String } contact.city
+ * @param { String } contact.email
+ * 
+ * @return {boolean} 
+ */ 
 function testValidContact(contact){
    // MAsque regEx validation formulaire
    const REG_EX_MASK_NAME = /^[A-Za-z]{2,38}$/;
@@ -229,12 +251,6 @@ function testValidContact(contact){
   let city_valid = REG_EX_MASK_CITY.test(contact.city);
   let email_valid = REG_EX_MASK_MAIL.test(contact.email);
 
-  //console.log(firstname_valid);
-  //console.log(lastname_valid);
-  //console.log(adress_valid);
-  //console.log(contact.city);
-  //console.log(city_valid);
-  //console.log(email_valid);
   if (!firstname_valid){
     // Error
     document.querySelector("#firstNameErrorMsg").innerText = "Merci de renseigner votre Prenom";
@@ -263,7 +279,13 @@ function testValidContact(contact){
   }
 }
 
-  // function POST API + confirmation id
+/**
+ * Function POST API 
+ * Recupere ID de confirmation
+ * Renvoi sur la page confirmation.html avec passage de ID dans URL 
+ * @param { Object } contact
+ * @param { Object } products
+ */ 
   function postDataOrder(contact, products){
     fetch(Url_Api_Order, {
     method: "POST",
@@ -278,8 +300,6 @@ function testValidContact(contact){
     try {
       const POST_ORDER = await response.json();
       let orderId = POST_ORDER.orderId;
-
-      // Clear le localStorage
       localStorage.clear();
       window.location.assign("confirmation.html?id=" + orderId);
     } catch (error) {

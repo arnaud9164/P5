@@ -1,23 +1,35 @@
 const Url_Api ="http://localhost:3000/api/products";
 
-// Récuperation des data API
+/**
+ * Récuperation des data using fetch api
+ * Appel de la fonction displayProducts
+ * @param { String } Url_Api
+ */
 fetch(Url_Api)  
     .then(function(res) {
         if (res.ok) {
         return res.json();
         }
     })
-    .then((product) => {
-        displayProducts(product);  // Appel de la fonction Display
+    .then((productApi) => {
+        displayProducts(productApi);  
     })
     .catch(function(err) {
-    // Une erreur est survenue
     console.error(err);
   });
 
-// Création items: Boucle x items et intégration des data API
+/**
+ * Affichage des produits
+ * Boucle x items - créations des elements à afficher
+ * @param { Object[] } product
+ * @param { String } product[]._id
+ * @param { String } product[].imageUrl
+ * @param { String } product[].altTxt
+ * @param { String } product[].name
+ * @param { String } product[].description
+ */
+ 
 function displayProducts(product){
-    // Définition de l'accès au DOM
     const items_container = document.getElementById("items");
     for (let i = 0; i < product.length; i++) { 
         let newItem = document.createElement("a");
