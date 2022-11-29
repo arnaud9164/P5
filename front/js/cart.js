@@ -6,7 +6,7 @@ let cart = JSON.parse(localStorage.getItem("product_panier"));
 
 // Initialisation des data produits du panier
 let api_products = [];
-
+console.log(cart);
 getAPIProducts(cart);
 
 
@@ -25,7 +25,9 @@ getAPIProducts(cart);
  * @param { String } product[].quantity
  */
 async function getAPIProducts(products) {
-  if (products !== null || products != 0) {
+  if (products === null || products == 0) {
+    CalculTotalQuantityPrice();
+  } else{
         try {
             for (let i = 0; i < products.length; i++) {
                 let api_product = null;
@@ -121,11 +123,10 @@ function displayProducts() {
 
 // Calcul prix total et nombre article dans le panier
 function CalculTotalQuantityPrice() {
-  if (cart === null || cart == 0) {
-    document.querySelector("#totalQuantity").innerHTML = "0";
-    document.querySelector("#totalPrice").innerHTML = "0";
-    document.querySelector("h1").innerHTML =
-      "Vous n'avez pas d'article dans votre panier";
+  if (cart == null || cart == 0) {
+    document.querySelector("#totalQuantity").innerText = "0";
+    document.querySelector("#totalPrice").innerText = "0";
+    document.querySelector("h1").innerText = "Vous n'avez pas d'article dans votre panier";
   }
   else {
     let total_quantity = 0;
@@ -137,8 +138,8 @@ function CalculTotalQuantityPrice() {
       total_quantity += cart[i].quantity;
       total_price += cart[i].quantity * api_products[current_index].price;
     }
-    document.querySelector("#totalPrice").innerHTML = total_price;
-    document.querySelector("#totalQuantity").innerHTML = total_quantity;
+    document.querySelector("#totalPrice").innerText = total_price;
+    document.querySelector("#totalQuantity").innerText = total_quantity;
   }
 }
 
@@ -254,22 +255,32 @@ function testValidContact(contact){
   if (!firstname_valid){
     // Error
     document.querySelector("#firstNameErrorMsg").innerText = "Merci de renseigner votre Prenom";
+  }else{
+    document.querySelector("#firstNameErrorMsg").innerText = "";
   }
   if (!lastname_valid){
     // Error
     document.querySelector("#lastNameErrorMsg").innerText = "Merci de renseigner votre Nom";
+  }else{
+    document.querySelector("#lastNameErrorMsg").innerText = "";
   }
   if (!adress_valid){
     // Error
     document.querySelector("#addressErrorMsg").innerText = "Renseigner votre adresse";
+  }else{
+    document.querySelector("#addressErrorMsg").innerText = "";
   }
   if (!city_valid){
     // Error
     document.querySelector("#cityErrorMsg").innerText = "Renseigner votre ville et votre code postal.";
+  }else{
+    document.querySelector("#cityErrorMsg").innerText = "";
   }
   if (!email_valid){
     // Error
     document.querySelector("#emailErrorMsg").innerText = "E-mail non valide.";
+  }else{
+    document.querySelector("#emailErrorMsg").innerText = "";
   }
 
   if (firstname_valid && lastname_valid && adress_valid && city_valid && email_valid){
