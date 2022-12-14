@@ -6,10 +6,8 @@ let cart = JSON.parse(localStorage.getItem("product_panier"));
 
 // Initialisation des data produits du panier
 let api_products = [];
-console.log(cart);
+
 getAPIProducts(cart);
-
-
 /**
  * Récuperation des data using fetch api
  * A partir du panier local storage on viens construire le tableau 
@@ -168,7 +166,6 @@ function listenDeleteEvents() {
 // Modification quantité produit
 function listenQuantityEvents() {
   let input_Quantity = document.querySelectorAll(".cart__item .itemQuantity");
-  console.log(input_Quantity);
   for (let i = 0; i < input_Quantity.length; i++) {
     input_Quantity[i].addEventListener("change", function(event) {
       let QuantityToModify = input_Quantity[i].closest("article"); // Return le DOM de l'article à modifier
@@ -194,7 +191,16 @@ function listenQuantityEvents() {
   }
 }
 
-
+// Initialisation de l'object contact
+class contactcart {
+  constructor(firstName, lastName, address, city, email) {
+      this.firstName = firstName;
+      this.lastName = lastName;
+      this.address = address;
+      this.city = city;
+      this.email = email;
+  }
+}
 /** 
 * Fonction passer commande
 * Récupére et fabrique un objet contact(formulaire) et un tableau des id produits
@@ -202,15 +208,14 @@ function listenQuantityEvents() {
 * True = post sur API les donnée 
 * False = Afficher un message d’erreur
 */
+
 document.querySelector("#order").addEventListener("click", (event) => {
   event.preventDefault();
-  let contact = {
-    firstName: document.querySelector("#firstName").value,
-    lastName: document.querySelector("#lastName").value,
-    address: document.querySelector("#address").value,
-    city: document.querySelector("#city").value,
-    email: document.querySelector("#email").value,
-  };
+  let contact = new contactcart(document.querySelector("#firstName").value, 
+  document.querySelector("#lastName").value, 
+  document.querySelector("#address").value, document.querySelector("#city").value, 
+  document.querySelector("#email").value); 
+
   let product_cmd =[];
   for (let i = 0; i < cart.length; i++) { // recupere uniquement ID, doit on push x fois id en fonction du nombre de produit panier ??
     product_cmd.push(cart[i].id);

@@ -59,13 +59,16 @@ function displayProducts(product){
 }
 
 // Initialisation de l'object produit à ajouter au panier
-let product_panier = { 
-    id : product_id,
-    color : "",
-    quantity : 0
-  };
- 
+class productcart {
+  constructor(id, color, quantity) {
+      this.id = id;
+      this.color = color;
+      this.quantity = quantity;
+  }
+}
+let product_panier = new productcart(product_id,"",0); 
 
+ 
 // Récupere la couleur quand elle change
 function listenColorsEvent() {
     document.querySelector("#colors").addEventListener("change", (event) => {
