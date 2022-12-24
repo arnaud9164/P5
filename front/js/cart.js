@@ -1,3 +1,5 @@
+import contactcart from "./contact_poo.js";
+
 const Url_Api ="http://localhost:3000/api/products/";
 const Url_Api_Order = "http://localhost:3000/api/products/order";
 
@@ -41,6 +43,7 @@ async function getAPIProducts(products) {
             CalculTotalQuantityPrice();
             listenDeleteEvents();
             listenQuantityEvents();
+            listenOrderEvents(); 
         } catch(err){
             console.error(err);
         }
@@ -54,7 +57,6 @@ async function getAPIProducts(products) {
  */
 function displayProducts() {
   const cart_items = document.querySelector("#cart__items");
-  console.log(api_products);
     for (let i = 0; i < api_products.length; i++) { 
       let newArticle = document.createElement("article");
       newArticle.className = "cart__item";
@@ -162,14 +164,12 @@ function listenDeleteEvents() {
   }
 }
 
-
 // Modification quantité produit
 function listenQuantityEvents() {
   let input_Quantity = document.querySelectorAll(".cart__item .itemQuantity");
   for (let i = 0; i < input_Quantity.length; i++) {
     input_Quantity[i].addEventListener("change", function(event) {
       let QuantityToModify = input_Quantity[i].closest("article"); // Return le DOM de l'article à modifier
-      console.log(QuantityToModify);
       let QuantityToModify_id = QuantityToModify.getAttribute("data-id");
       let QuantityToModify_color = QuantityToModify.getAttribute("data-color");
       for (let j = 0; j < cart.length; j++) {
@@ -191,109 +191,6 @@ function listenQuantityEvents() {
   }
 }
 
-// Initialisation de l'object contact
-class contactcart {
-  constructor(firstName, lastName, address, city, email) {
-      this.firstName = firstName;
-      this.lastName = lastName;
-      this.address = address;
-      this.city = city;
-      this.email = email;
-  }
-}
-/** 
-* Fonction passer commande
-* Récupére et fabrique un objet contact(formulaire) et un tableau des id produits
-* Test les données saisies formulaire 
-* True = post sur API les donnée 
-* False = Afficher un message d’erreur
-*/
-
-document.querySelector("#order").addEventListener("click", (event) => {
-  event.preventDefault();
-  let contact = new contactcart(document.querySelector("#firstName").value, 
-  document.querySelector("#lastName").value, 
-  document.querySelector("#address").value, document.querySelector("#city").value, 
-  document.querySelector("#email").value); 
-
-  let product_cmd =[];
-  for (let i = 0; i < cart.length; i++) { // recupere uniquement ID, doit on push x fois id en fonction du nombre de produit panier ??
-    product_cmd.push(cart[i].id);
-  }
-  
-  let valid_data = testValidContact(contact);
-
-  if(valid_data){
-    postDataOrder(contact, product_cmd);
-  } else{
-    return null;
-  }
-});
-
-
-/**
- * Test les data contact avec des REG_EX 
- * Affichage message erreur 
- * @param { Object } contact
- * @param { String } contact.firstName
- * @param { String } contact.lastName
- * @param { String } contact.address
- * @param { String } contact.city
- * @param { String } contact.email
- * 
- * @return {boolean} 
- */ 
-function testValidContact(contact){
-   // MAsque regEx validation formulaire
-   const REG_EX_MASK_NAME = /^[A-Za-z]{2,38}$/;
-   const REG_EX_MASK_ADDRESS =  /^[0-9]{1,5}\s+[A-Za-zéèàïêç\-\s]{2,50}$/;
-   const REG_EX_MASK_CITY = /^[A-Za-zéèàïêç\-\s]{1,50}\s+[0-9]{5}$/; // City + zip code
-   const REG_EX_MASK_MAIL =  /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-
-   // Vérification si la fonction return vrai ou faux
-  let firstname_valid = REG_EX_MASK_NAME.test(contact.firstName);
-  let lastname_valid = REG_EX_MASK_NAME.test(contact.lastName);
-  let adress_valid = REG_EX_MASK_ADDRESS.test(contact.address);
-  let city_valid = REG_EX_MASK_CITY.test(contact.city);
-  let email_valid = REG_EX_MASK_MAIL.test(contact.email);
-
-  if (!firstname_valid){
-    // Error
-    document.querySelector("#firstNameErrorMsg").innerText = "Merci de renseigner votre Prenom";
-  }else{
-    document.querySelector("#firstNameErrorMsg").innerText = "";
-  }
-  if (!lastname_valid){
-    // Error
-    document.querySelector("#lastNameErrorMsg").innerText = "Merci de renseigner votre Nom";
-  }else{
-    document.querySelector("#lastNameErrorMsg").innerText = "";
-  }
-  if (!adress_valid){
-    // Error
-    document.querySelector("#addressErrorMsg").innerText = "Renseigner votre adresse";
-  }else{
-    document.querySelector("#addressErrorMsg").innerText = "";
-  }
-  if (!city_valid){
-    // Error
-    document.querySelector("#cityErrorMsg").innerText = "Renseigner votre ville et votre code postal.";
-  }else{
-    document.querySelector("#cityErrorMsg").innerText = "";
-  }
-  if (!email_valid){
-    // Error
-    document.querySelector("#emailErrorMsg").innerText = "E-mail non valide.";
-  }else{
-    document.querySelector("#emailErrorMsg").innerText = "";
-  }
-
-  if (firstname_valid && lastname_valid && adress_valid && city_valid && email_valid){
-    return true;
-  } else {
-    return false;
-  }
-}
 
 /**
  * Function POST API 
@@ -302,24 +199,52 @@ function testValidContact(contact){
  * @param { Object } contact
  * @param { Object } products
  */ 
-  function postDataOrder(contact, products){
-    fetch(Url_Api_Order, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      contact: contact,
-      products: products,
-    }),
-  }).then(async (response) => {
-    try {
-      const POST_ORDER = await response.json();
-      let orderId = POST_ORDER.orderId;
-      localStorage.clear();
-      window.location.assign("confirmation.html?id=" + orderId);
-    } catch (error) {
-      console.log(error);
+ function postDataOrder(contact, products){
+  fetch(Url_Api_Order, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    contact: contact,
+    products: products,
+  }),
+}).then(async (response) => {
+  try {
+    const POST_ORDER = await response.json();
+    let orderId = POST_ORDER.orderId;
+    localStorage.clear();
+    window.location.assign("confirmation.html?id=" + orderId);
+  } catch (error) {
+    console.log(error);
+  }
+});
+}
+
+/** 
+* Fonction passer commande
+* Récupére et fabrique un objet contact(formulaire) et un tableau des id produits
+* Test les données saisies formulaire 
+* True = post sur API les donnée 
+* False = Afficher un message d’erreur
+*/
+function listenOrderEvents() {
+  document.querySelector("#order").addEventListener("click", (event) => {
+    event.preventDefault();
+    let contact = new contactcart(document.querySelector("#firstName").value, 
+    document.querySelector("#lastName").value, 
+    document.querySelector("#address").value, document.querySelector("#city").value, 
+    document.querySelector("#email").value); 
+  
+    let product_cmd =[];
+    for (let i = 0; i < cart.length; i++) { // recupere uniquement ID
+      product_cmd.push(cart[i].id);
+    }
+  
+    if(contact.testValidContact()){
+      postDataOrder(contact, product_cmd);
+    } else{
+      return null;
     }
   });
 }
