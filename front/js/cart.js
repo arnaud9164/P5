@@ -1,15 +1,16 @@
 import contactcart from "./contact_poo.js";
+import Cart from "./cart_poo.js";
 
-const Url_Api ="http://localhost:3000/api/products/";
+const Url_Api = "http://localhost:3000/api/products/";
 const Url_Api_Order = "http://localhost:3000/api/products/order";
 
-// Recuperation du panier - Local Storage
-let cart = JSON.parse(localStorage.getItem("product_panier"));
+
+let cart = new Cart();
 
 // Initialisation des data produits du panier
 let api_products = [];
 
-getAPIProducts(cart);
+getAPIProducts(cart.cart);
 /**
  * Récuperation des data using fetch api
  * A partir du panier local storage on viens construire le tableau 
@@ -26,7 +27,7 @@ getAPIProducts(cart);
  */
 async function getAPIProducts(products) {
   if (products === null || products == 0) {
-    CalculTotalQuantityPrice();
+    cart.CalculTotalQuantityPrice();
   } else{
         try {
             for (let i = 0; i < products.length; i++) {
@@ -40,11 +41,12 @@ async function getAPIProducts(products) {
                 api_products.push(api_product);
             }
             displayProducts();
-            CalculTotalQuantityPrice();
-            listenDeleteEvents();
-            listenQuantityEvents();
+            cart.CalculTotalQuantityPrice();
+            cart.listenQuantityEvents();
+            cart.listenDeleteEvents()
             listenOrderEvents(); 
         } catch(err){
+          console.log("err");
             console.error(err);
         }
     }      
@@ -58,6 +60,7 @@ async function getAPIProducts(products) {
 function displayProducts() {
   const cart_items = document.querySelector("#cart__items");
     for (let i = 0; i < api_products.length; i++) { 
+      console.log(api_products[i]);
       let newArticle = document.createElement("article");
       newArticle.className = "cart__item";
       newArticle.dataset.id = api_products[i]._id;
@@ -120,77 +123,6 @@ function displayProducts() {
       settingDelete.appendChild(newDeleteBtn); 
     }
 }
-
-// Calcul prix total et nombre article dans le panier
-function CalculTotalQuantityPrice() {
-  if (cart == null || cart == 0) {
-    document.querySelector("#totalQuantity").innerText = "0";
-    document.querySelector("#totalPrice").innerText = "0";
-    document.querySelector("h1").innerText = "Vous n'avez pas d'article dans votre panier";
-  }
-  else {
-    let total_quantity = 0;
-    let total_price = 0;
-    for (let i = 0; i < cart.length; i++) {
-      let current_index = api_products.findIndex((product) => {
-        return product._id == cart[i].id;
-      });
-      total_quantity += cart[i].quantity;
-      total_price += cart[i].quantity * api_products[current_index].price;
-    }
-    document.querySelector("#totalPrice").innerText = total_price;
-    document.querySelector("#totalQuantity").innerText = total_quantity;
-  }
-}
-
-
-// Suppresion d'article au click
-function listenDeleteEvents() {
-  let btn_delete = document.querySelectorAll(".cart__item .deleteItem"); // Recuperation de tout les boutons du DOM
-  for (let i = 0; i < btn_delete.length; i++) { // Ecoute de chaque bouton
-    btn_delete[i].addEventListener("click", function() {
-      let articleToRemove = btn_delete[i].closest("article"); // Return le DOM de l'article à supprimer
-      articleToRemove.remove(); // supprime article du DOM
-      let articleToRemove_id = articleToRemove.getAttribute("data-id"); // On récupere ID et color à supprimer pour faire une recherche dans local storage
-      let articleToRemove_color = articleToRemove.getAttribute("data-color");
-      for (let j = 0; j < api_products.length; j++) {
-        if (articleToRemove_id == api_products[j]._id && articleToRemove_color == api_products[j].color){
-          cart = cart.filter(element => element._id !== api_products[j]._id && element.color !== api_products[j].color);// supprime le produit 
-        }
-        localStorage.setItem("product_panier", JSON.stringify(cart));
-        CalculTotalQuantityPrice(); // On recalcul la quantité et le prix totaux 
-      }
-    });
-  }
-}
-
-// Modification quantité produit
-function listenQuantityEvents() {
-  let input_Quantity = document.querySelectorAll(".cart__item .itemQuantity");
-  for (let i = 0; i < input_Quantity.length; i++) {
-    input_Quantity[i].addEventListener("change", function(event) {
-      let QuantityToModify = input_Quantity[i].closest("article"); // Return le DOM de l'article à modifier
-      let QuantityToModify_id = QuantityToModify.getAttribute("data-id");
-      let QuantityToModify_color = QuantityToModify.getAttribute("data-color");
-      for (let j = 0; j < cart.length; j++) {
-        if(cart[i].color === QuantityToModify_color && cart[i].id === QuantityToModify_id){
-          if(event.target.value < 1){
-            event.target.value = 1;
-            cart[i].quantity = 1;
-          } else if(event.target.value > 100){
-            event.target.value = 100;
-            cart[i].quantity = 100;
-          }else{
-            cart[i].quantity = parseInt(event.target.value);
-          }
-          localStorage.setItem("product_panier", JSON.stringify(cart));
-          CalculTotalQuantityPrice(); // On recalcul la quantité et le prix totaux 
-        }
-      }
-    });
-  }
-}
-
 
 /**
  * Function POST API 
