@@ -40,13 +40,10 @@ export default class Cart {
         let total_quantity = 0;
         let total_price = 0;
         for (let i = 0; i < this.cart.length; i++) {
-            //let current_index = api_products.findIndex((product) => {
-            //return product._id == cart[i].id;
-            //});
             total_quantity += this.cart[i].quantity;
-            //total_price += cart[i].quantity * api_products[current_index].price;
+            total_price += this.cart[i].quantity * this.cart[i].price;
         }
-        //document.querySelector("#totalPrice").innerText = total_price;
+        document.querySelector("#totalPrice").innerText = total_price;
         document.querySelector("#totalQuantity").innerText = total_quantity;
         }
     }

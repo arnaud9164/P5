@@ -1,16 +1,7 @@
 import contactcart from "./contact_poo.js";
 import Cart from "./cart_poo.js";
+import { displayProductCart, Url_Api } from "./display.js";
 
-const Url_Api = "http://localhost:3000/api/products/";
-const Url_Api_Order = "http://localhost:3000/api/products/order";
-
-
-let cart = new Cart();
-
-// Initialisation des data produits du panier
-let api_products = [];
-
-getAPIProducts(cart.cart);
 /**
  * Récuperation des data using fetch api
  * A partir du panier local storage on viens construire le tableau 
@@ -25,103 +16,29 @@ getAPIProducts(cart.cart);
  * @param { String } product[].color
  * @param { String } product[].quantity
  */
-async function getAPIProducts(products) {
-  if (products === null || products == 0) {
-    cart.CalculTotalQuantityPrice();
+async function DisplayCartApi(cart) {
+  if (cart === null || cart == 0) {
+    localCart.CalculTotalQuantityPrice();
   } else{
         try {
-            for (let i = 0; i < products.length; i++) {
+            for (let i = 0; i < cart.length; i++) {
                 let api_product = null;
-                await fetch(Url_Api + products[i].id)
+                await fetch(Url_Api + cart[i].id)
                 .then((res) => res.json())
-                .then((data) => (api_product = data));
-        
-                api_product.color = products[i].color;
-                api_product.quantity = products[i].quantity;
-                api_products.push(api_product);
+                .then((data) => (api_product = data));  
+                localCart.cart[i].imageUrl = api_product.imageUrl;
+                localCart.cart[i].altTxt = api_product.altTxt;
+                localCart.cart[i].name = api_product.name;
             }
-            displayProducts();
-            cart.CalculTotalQuantityPrice();
-            cart.listenQuantityEvents();
-            cart.listenDeleteEvents()
+            displayProductCart(localCart.cart);
+            localCart.CalculTotalQuantityPrice();
+            localCart.listenQuantityEvents();
+            localCart.listenDeleteEvents()
             listenOrderEvents(); 
         } catch(err){
-          console.log("err");
-            console.error(err);
+          console.error(err);
         }
     }      
-}
-
-/**
- * Affichage des produits du panier
- * Boucle x items - créations des elements à afficher
- * { Object[] } api_products
- */
-function displayProducts() {
-  const cart_items = document.querySelector("#cart__items");
-    for (let i = 0; i < api_products.length; i++) { 
-      console.log(api_products[i]);
-      let newArticle = document.createElement("article");
-      newArticle.className = "cart__item";
-      newArticle.dataset.id = api_products[i]._id;
-      newArticle.dataset.color = api_products[i].color;
-      cart_items.appendChild(newArticle);
-
-      let imgContainer = document.createElement("div");
-      imgContainer.className = "cart__item__img";
-      newArticle.appendChild(imgContainer);
-      let newImg = document.createElement("img");
-      newImg.src = api_products[i].imageUrl;
-      newImg.alt = api_products[i].altTxt;
-      imgContainer.appendChild(newImg);
-
-      let contentContainer = document.createElement("div");
-      contentContainer.className = "cart__item__content";
-      newArticle.appendChild(contentContainer);
-      let descriptionContainer = document.createElement("div");
-      descriptionContainer.className = "cart__item__content__description";
-      contentContainer.appendChild(descriptionContainer);
-      let newName = document.createElement("h2");
-      let nameContent = document.createTextNode(api_products[i].name);
-      newName.appendChild(nameContent);
-      descriptionContainer.appendChild(newName);
-      let newColor = document.createElement("p");
-      let colorContent = document.createTextNode(api_products[i].color);
-      newColor.appendChild(colorContent);
-      descriptionContainer.appendChild(newColor);
-      let newPrice = document.createElement("p");
-      let priceContent = document.createTextNode(api_products[i].price + " €");
-      newPrice.appendChild(priceContent);
-      descriptionContainer.appendChild(newPrice);
-
-      let settingContainer = document.createElement("div");
-      settingContainer.className = "cart__item__content__settings";
-      contentContainer.appendChild(settingContainer);
-      let settingQty = document.createElement("div");
-      settingQty.className = "cart__item__content__settings__quantity";
-      settingContainer.appendChild(settingQty);
-      let newQtyLabel = document.createElement("p");
-      let QtyLabelContent = document.createTextNode("Qté : ");
-      newQtyLabel.appendChild(QtyLabelContent);
-      settingQty.appendChild(newQtyLabel);
-      let newQtyInput = document.createElement("input")
-      newQtyInput.type = "number";
-      newQtyInput.className = "itemQuantity";
-      newQtyInput.name = "itemQuantity";
-      newQtyInput.min = "1";
-      newQtyInput.max = "100";
-      newQtyInput.value = api_products[i].quantity;
-      settingQty.appendChild(newQtyInput);
-
-      let settingDelete = document.createElement("div");
-      settingDelete.className = "cart__item__content__settings__delete";
-      settingContainer.appendChild(settingDelete);
-      let newDeleteBtn = document.createElement("p");
-      newDeleteBtn.className = "deleteItem";
-      let DeleteBtnContent = document.createTextNode("Supprimer");
-      newDeleteBtn.appendChild(DeleteBtnContent);
-      settingDelete.appendChild(newDeleteBtn); 
-    }
 }
 
 /**
@@ -132,7 +49,7 @@ function displayProducts() {
  * @param { Object } products
  */ 
  function postDataOrder(contact, products){
-  fetch(Url_Api_Order, {
+  fetch(Url_Api+"order", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -169,8 +86,8 @@ function listenOrderEvents() {
     document.querySelector("#email").value); 
   
     let product_cmd =[];
-    for (let i = 0; i < cart.length; i++) { // recupere uniquement ID
-      product_cmd.push(cart[i].id);
+    for (let i = 0; i < localCart.length; i++) { // recupere uniquement ID
+      product_cmd.push(localCart[i].id);
     }
   
     if(contact.testValidContact()){
@@ -180,3 +97,12 @@ function listenOrderEvents() {
     }
   });
 }
+
+
+// Récuperation du Panier local storage
+let localCart = new Cart();
+
+// Récuperation des data API et affichage
+// Appel des fonction, event(quantity, delete, order)
+DisplayCartApi(localCart.cart);
+

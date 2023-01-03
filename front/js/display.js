@@ -1,4 +1,4 @@
-const Url_Api ="http://localhost:3000/api/products/";
+export const Url_Api ="http://localhost:3000/api/products/";
 
 /**
    * Récuperation des data du produit via son ID (fetch api)
@@ -107,3 +107,77 @@ function displaySingle(product){
         color_container.appendChild(newColor);
     }
   }
+
+/**
+* Affichage des produits du panier
+* Boucle x items - créations des elements à afficher
+* { Object[] } api_products
+*/
+export function displayProductCart(productToDisplay) {
+ const cart_items = document.querySelector("#cart__items");
+   for (let i = 0; i < productToDisplay.length; i++) { 
+     console.log(productToDisplay[i]);
+     let newArticle = document.createElement("article");
+     newArticle.className = "cart__item";
+     newArticle.dataset.id = productToDisplay[i].id;
+     newArticle.dataset.color = productToDisplay[i].color;
+     cart_items.appendChild(newArticle);
+
+     let imgContainer = document.createElement("div");
+     imgContainer.className = "cart__item__img";
+     newArticle.appendChild(imgContainer);
+     let newImg = document.createElement("img");
+     newImg.src = productToDisplay[i].imageUrl;
+     newImg.alt = productToDisplay[i].altTxt;
+     imgContainer.appendChild(newImg);
+
+     let contentContainer = document.createElement("div");
+     contentContainer.className = "cart__item__content";
+     newArticle.appendChild(contentContainer);
+     let descriptionContainer = document.createElement("div");
+     descriptionContainer.className = "cart__item__content__description";
+     contentContainer.appendChild(descriptionContainer);
+     let newName = document.createElement("h2");
+     let nameContent = document.createTextNode(productToDisplay[i].name);
+     newName.appendChild(nameContent);
+     descriptionContainer.appendChild(newName);
+     let newColor = document.createElement("p");
+     let colorContent = document.createTextNode(productToDisplay[i].color);
+     newColor.appendChild(colorContent);
+     descriptionContainer.appendChild(newColor);
+
+     let newPrice = document.createElement("p");
+     newPrice.className = "itemPrice";
+     let priceContent = document.createTextNode(productToDisplay[i].price + " €");
+     newPrice.appendChild(priceContent);
+     descriptionContainer.appendChild(newPrice);
+
+     let settingContainer = document.createElement("div");
+     settingContainer.className = "cart__item__content__settings";
+     contentContainer.appendChild(settingContainer);
+     let settingQty = document.createElement("div");
+     settingQty.className = "cart__item__content__settings__quantity";
+     settingContainer.appendChild(settingQty);
+     let newQtyLabel = document.createElement("p");
+     let QtyLabelContent = document.createTextNode("Qté : ");
+     newQtyLabel.appendChild(QtyLabelContent);
+     settingQty.appendChild(newQtyLabel);
+     let newQtyInput = document.createElement("input")
+     newQtyInput.type = "number";
+     newQtyInput.className = "itemQuantity";
+     newQtyInput.name = "itemQuantity";
+     newQtyInput.min = "1";
+     newQtyInput.max = "100";
+     newQtyInput.value = productToDisplay[i].quantity;
+     settingQty.appendChild(newQtyInput);
+
+     let settingDelete = document.createElement("div");
+     settingDelete.className = "cart__item__content__settings__delete";
+     settingContainer.appendChild(settingDelete);
+     let newDeleteBtn = document.createElement("p");
+     newDeleteBtn.className = "deleteItem";
+     let DeleteBtnContent = document.createTextNode("Supprimer");
+     newDeleteBtn.appendChild(DeleteBtnContent);
+     settingDelete.appendChild(newDeleteBtn); 
+   }
+}
