@@ -29,12 +29,9 @@ async function DisplayCartApi(cart) {
                 localCart.cart[i].imageUrl = api_product.imageUrl;
                 localCart.cart[i].altTxt = api_product.altTxt;
                 localCart.cart[i].name = api_product.name;
+                localCart.cart[i].price = api_product.price;
             }
             displayProductCart(localCart.cart);
-            localCart.CalculTotalQuantityPrice();
-            localCart.listenQuantityEvents();
-            localCart.listenDeleteEvents()
-            listenOrderEvents(); 
         } catch(err){
           console.error(err);
         }
@@ -77,7 +74,7 @@ async function DisplayCartApi(cart) {
 * True = post sur API les donnée 
 * False = Afficher un message d’erreur
 */
-function listenOrderEvents() {
+function listenOrderEvents(cart) {
   document.querySelector("#order").addEventListener("click", (event) => {
     event.preventDefault();
     let contact = new contactcart(document.querySelector("#firstName").value, 
@@ -86,8 +83,8 @@ function listenOrderEvents() {
     document.querySelector("#email").value); 
   
     let product_cmd =[];
-    for (let i = 0; i < localCart.length; i++) { // recupere uniquement ID
-      product_cmd.push(localCart[i].id);
+    for (let i = 0; i < cart.length; i++) { // recupere uniquement ID
+      product_cmd.push(cart[i].id);
     }
   
     if(contact.testValidContact()){
@@ -104,5 +101,8 @@ let localCart = new Cart();
 
 // Récuperation des data API et affichage
 // Appel des fonction, event(quantity, delete, order)
-DisplayCartApi(localCart.cart);
-
+await DisplayCartApi(localCart.cart);
+localCart.CalculTotalQuantityPrice();
+localCart.listenQuantityEvents();
+localCart.listenDeleteEvents()
+listenOrderEvents(localCart.cart);
