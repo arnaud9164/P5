@@ -6,20 +6,13 @@ import { displayProductCart, Url_Api } from "./display.js";
  * Récuperation des data using fetch api
  * A partir du panier local storage on viens construire le tableau 
  * contenant les data des produits du panier.
- * Appel des fonctions: displayProducts()
- *                      CalculTotalQuantityPrice()
- *                      listenDeleteEvents()
- *                      listenQuantityEvents()
- * @param { String } Url_Api
- * @param { Object[] } products
- * @param { String } product[]._id
- * @param { String } product[].color
- * @param { String } product[].quantity
+ * Appel fonction: displayProductCart()
+ * @param { Object[] } cart
  */
 async function DisplayCartApi(cart) {
-  if (cart === null || cart == 0) {
-    localCart.CalculTotalQuantityPrice();
-  } else{
+    if (cart === null || cart == 0) {
+        localCart.CalculTotalQuantityPrice();
+    } else {
         try {
             for (let i = 0; i < cart.length; i++) {
                 let api_product = null;
@@ -33,7 +26,7 @@ async function DisplayCartApi(cart) {
             }
             displayProductCart(localCart.cart);
         } catch(err){
-          console.error(err);
+            console.error(err);
         }
     }      
 }
@@ -46,25 +39,25 @@ async function DisplayCartApi(cart) {
  * @param { Object } products
  */ 
  function postDataOrder(contact, products){
-  fetch(Url_Api+"order", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    contact: contact,
-    products: products,
-  }),
-}).then(async (response) => {
-  try {
-    const POST_ORDER = await response.json();
-    let orderId = POST_ORDER.orderId;
-    localStorage.clear();
-    window.location.assign("confirmation.html?id=" + orderId);
-  } catch (error) {
-    console.log(error);
-  }
-});
+    fetch(Url_Api+"order", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            contact: contact,
+            products: products,
+        }),
+    }).then(async (response) => {
+        try {
+            const POST_ORDER = await response.json();
+            let orderId = POST_ORDER.orderId;
+            localStorage.clear();
+            window.location.assign("confirmation.html?id=" + orderId);
+        } catch (error) {
+            console.log(error);
+        }
+    });
 }
 
 /** 
@@ -73,26 +66,27 @@ async function DisplayCartApi(cart) {
 * Test les données saisies formulaire 
 * True = post sur API les donnée 
 * False = Afficher un message d’erreur
+* @param { Object[] } cart
 */
 function listenOrderEvents(cart) {
-  document.querySelector("#order").addEventListener("click", (event) => {
-    event.preventDefault();
-    let contact = new contactcart(document.querySelector("#firstName").value, 
-    document.querySelector("#lastName").value, 
-    document.querySelector("#address").value, document.querySelector("#city").value, 
-    document.querySelector("#email").value); 
+    document.querySelector("#order").addEventListener("click", (event) => {
+        event.preventDefault();
+        let contact = new contactcart(document.querySelector("#firstName").value, 
+        document.querySelector("#lastName").value, 
+        document.querySelector("#address").value, document.querySelector("#city").value, 
+        document.querySelector("#email").value); 
   
-    let product_cmd =[];
-    for (let i = 0; i < cart.length; i++) { // recupere uniquement ID
-      product_cmd.push(cart[i].id);
-    }
+        let product_cmd =[];
+        for (let i = 0; i < cart.length; i++) { // recupere uniquement ID
+            product_cmd.push(cart[i].id);
+        }
   
-    if(contact.testValidContact()){
-      postDataOrder(contact, product_cmd);
-    } else{
-      return null;
-    }
-  });
+        if(contact.testValidContact()){
+            postDataOrder(contact, product_cmd);
+        } else{
+            return null;
+        }
+    });
 }
 
 
@@ -100,9 +94,14 @@ function listenOrderEvents(cart) {
 let localCart = new Cart();
 
 // Récuperation des data API et affichage
-// Appel des fonction, event(quantity, delete, order)
 await DisplayCartApi(localCart.cart);
+
+// Calcul du nombre d'articles et prix totaux du panier
 localCart.CalculTotalQuantityPrice();
+
+// Modifie la quantité sur evenement
 localCart.listenQuantityEvents();
-localCart.listenDeleteEvents()
+// Supprime un article sur evenement
+localCart.listenDeleteEvents();
+// Passe la commande sur evenement
 listenOrderEvents(localCart.cart);

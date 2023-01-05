@@ -11,20 +11,24 @@ export default class Cart {
         }
     }
     addCart(ProductToAdd){ // fonction a debugger- pb d'ajout multiple même produit
-        if (this.cart == null) {
-        this.cart.push(ProductToAdd);
+        if (this.cart.length == 0) {
+            this.cart.push(ProductToAdd);
         } else {
-            let get_article = this.cart.find((cart_product) => ProductToAdd.id == cart_product.id && ProductToAdd.color == cart_product.color);
-            if (get_article) {
-                let nb = Number(ProductToAdd.quantity) + Number(get_article.quantity);
-                if (nb < 100){
-                    get_article.quantity = nb;
-                } else {
-                    return false
+            let getProduct = false;
+            for (let i = 0; i < this.cart.length; i++) {
+                if ((ProductToAdd.id == this.cart[i].id) && (ProductToAdd.color == this.cart[i].color)){
+                    getProduct = true;
+                    let newQty = Number(ProductToAdd.quantity) + Number(this.cart[i].quantity);
+                    if (newQty < 100){
+                        this.cart[i].quantity = newQty;
+                    } else {
+                        this.cart[i].quantity = 100;
+                    }
                 }
-            } else {
-                this.cart.push(ProductToAdd);
             }
+                if (!getProduct){
+                    this.cart.push(ProductToAdd);
+                }   
         } 
         localStorage.setItem("product_panier", JSON.stringify(this.cart));
         return true
@@ -40,8 +44,8 @@ export default class Cart {
         let total_quantity = 0;
         let total_price = 0;
         for (let i = 0; i < this.cart.length; i++) {
-            total_quantity += this.cart[i].quantity;
-            total_price += this.cart[i].quantity * this.cart[i].price;
+            total_quantity += Number(this.cart[i].quantity);
+            total_price += Number(this.cart[i].quantity) * Number(this.cart[i].price);
         }
         document.querySelector("#totalPrice").innerText = total_price;
         document.querySelector("#totalQuantity").innerText = total_quantity;
