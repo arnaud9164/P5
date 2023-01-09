@@ -92,6 +92,8 @@ function listenOrderEvents(cart) {
 
 // Récuperation du Panier local storage
 let localCart = new Cart();
+// Tri les produits par ID
+localCart.sortByID();
 
 // Récuperation des data API et affichage
 await DisplayCartApi(localCart.cart);

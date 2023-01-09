@@ -91,4 +91,19 @@ export default class Cart {
             });
         }
     }
+
+    // Tri les articles du panier par ID
+    sortByID() {
+        this.cart.sort((a, b) => {
+        if (a.id < b.id) {
+            return -1;
+        }
+        if (a.id == b.id) {
+            return 0;
+        }
+        if (a.id > b.id) {
+            return 1;
+        }
+        });
+    }
 }
