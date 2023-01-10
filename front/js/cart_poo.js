@@ -10,7 +10,8 @@ export default class Cart {
             this.cart = LocalCart;
         }
     }
-    addCart(ProductToAdd){ // fonction a debugger- pb d'ajout multiple même produit
+    // Ajoute un produit au panier
+    addCart(ProductToAdd){  
         if (this.cart.length == 0) {
             this.cart.push(ProductToAdd);
         } else {
@@ -41,11 +42,15 @@ export default class Cart {
         document.querySelector("h1").innerText = "Vous n'avez pas d'article dans votre panier";
         }
         else {
+        
         let total_quantity = 0;
         let total_price = 0;
+        let itemPrice = document.querySelectorAll(".itemPrice");
+
+
         for (let i = 0; i < this.cart.length; i++) {
             total_quantity += Number(this.cart[i].quantity);
-            total_price += Number(this.cart[i].quantity) * Number(this.cart[i].price);
+            total_price += Number(this.cart[i].quantity) * Number(parseInt(itemPrice[i].innerText));
         }
         document.querySelector("#totalPrice").innerText = total_price;
         document.querySelector("#totalQuantity").innerText = total_quantity;

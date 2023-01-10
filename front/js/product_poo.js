@@ -15,11 +15,11 @@ export default class Product {
     }
   
     // Récupere la couleur quand elle change
-    getColor(){
+    getColorFromInput(){
         this.color = document.querySelector("#colors").value;
     }
     // Récupere la quantité quand elle change
-    getQuantity(){
+    getQuantityFromInput(){
         this.quantity = document.querySelector("#quantity").value;
     }
     // Vérifie les input Quantity et color

@@ -6,7 +6,7 @@ export const Url_Api ="http://localhost:3000/api/products/";
  * @param { String } Url_Api
  * @param { String } page: type de page à afficher ("all","single")
  */
-export default async function displayProductApi(UrlApi, page){
+export default async function displayProductApi(UrlApi, page, colorSelect, quantitySelect){
     try{
         let productApi = null;
         await fetch(Url_Api + UrlApi)  
@@ -22,6 +22,9 @@ export default async function displayProductApi(UrlApi, page){
                 break;
             case 'single':
                 displaySingle(productApi);
+                break;
+            case 'cart':
+                displayCart(productApi, colorSelect, quantitySelect);
                 break;
             default:
                 console.log(`Sorry, we are out of Product.`);       
@@ -181,4 +184,81 @@ export function displayProductCart(productToDisplay) {
         newDeleteBtn.appendChild(DeleteBtnContent);
         settingDelete.appendChild(newDeleteBtn); 
     }
+}
+
+/**
+ * Affichage des produit du panier
+ * @param { Object } productToDisplay
+ * @param { String } productToDisplay.imageUrl
+ * @param { String } productToDisplay.altTxt
+ * @param { String } productToDisplay.name
+ * @param { String } productToDisplay.colors
+ * @param { String } productToDisplay.price
+ * @param { String } productToDisplay.quantity
+ */
+function displayCart(productToDisplay, color, quantity) {
+    const cart_items = document.querySelector("#cart__items");
+    console.log(productToDisplay);
+    let newArticle = document.createElement("article");
+    newArticle.className = "cart__item";
+    newArticle.dataset.id = productToDisplay._id;
+    newArticle.dataset.color = color;
+    cart_items.appendChild(newArticle);
+
+    let imgContainer = document.createElement("div");
+    imgContainer.className = "cart__item__img";
+    newArticle.appendChild(imgContainer);
+    let newImg = document.createElement("img");
+    newImg.src = productToDisplay.imageUrl;
+    newImg.alt = productToDisplay.altTxt;
+    imgContainer.appendChild(newImg);
+
+    let contentContainer = document.createElement("div");
+    contentContainer.className = "cart__item__content";
+    newArticle.appendChild(contentContainer);
+    let descriptionContainer = document.createElement("div");
+    descriptionContainer.className = "cart__item__content__description";
+    contentContainer.appendChild(descriptionContainer);
+    let newName = document.createElement("h2");
+    let nameContent = document.createTextNode(productToDisplay.name);
+    newName.appendChild(nameContent);
+    descriptionContainer.appendChild(newName);
+    let newColor = document.createElement("p");
+    let colorContent = document.createTextNode(color);
+    newColor.appendChild(colorContent);
+    descriptionContainer.appendChild(newColor);
+
+    let newPrice = document.createElement("p");
+    newPrice.className = "itemPrice";
+    let priceContent = document.createTextNode(productToDisplay.price + " €");
+    newPrice.appendChild(priceContent);
+    descriptionContainer.appendChild(newPrice);
+
+    let settingContainer = document.createElement("div");
+    settingContainer.className = "cart__item__content__settings";
+    contentContainer.appendChild(settingContainer);
+    let settingQty = document.createElement("div");
+    settingQty.className = "cart__item__content__settings__quantity";
+    settingContainer.appendChild(settingQty);
+    let newQtyLabel = document.createElement("p");
+    let QtyLabelContent = document.createTextNode("Qté : ");
+    newQtyLabel.appendChild(QtyLabelContent);
+    settingQty.appendChild(newQtyLabel);
+    let newQtyInput = document.createElement("input")
+    newQtyInput.type = "number";
+    newQtyInput.className = "itemQuantity";
+    newQtyInput.name = "itemQuantity";
+    newQtyInput.min = "1";
+    newQtyInput.max = "100";
+    newQtyInput.value = quantity;
+    settingQty.appendChild(newQtyInput);
+
+    let settingDelete = document.createElement("div");
+    settingDelete.className = "cart__item__content__settings__delete";
+    settingContainer.appendChild(settingDelete);
+    let newDeleteBtn = document.createElement("p");
+    newDeleteBtn.className = "deleteItem";
+    let DeleteBtnContent = document.createTextNode("Supprimer");
+    newDeleteBtn.appendChild(DeleteBtnContent);
+    settingDelete.appendChild(newDeleteBtn); 
 }

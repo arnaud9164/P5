@@ -1,35 +1,8 @@
 import contactcart from "./contact_poo.js";
 import Cart from "./cart_poo.js";
-import { displayProductCart, Url_Api } from "./display.js";
+import displayProductApi from "./display.js";
+import { Url_Api } from "./display.js";
 
-/**
- * Récuperation des data using fetch api
- * A partir du panier local storage on viens construire le tableau 
- * contenant les data des produits du panier.
- * Appel fonction: displayProductCart()
- * @param { Object[] } cart
- */
-async function DisplayCartApi(cart) {
-    if (cart === null || cart == 0) {
-        localCart.CalculTotalQuantityPrice();
-    } else {
-        try {
-            for (let i = 0; i < cart.length; i++) {
-                let api_product = null;
-                await fetch(Url_Api + cart[i].id)
-                .then((res) => res.json())
-                .then((data) => (api_product = data));  
-                localCart.cart[i].imageUrl = api_product.imageUrl;
-                localCart.cart[i].altTxt = api_product.altTxt;
-                localCart.cart[i].name = api_product.name;
-                localCart.cart[i].price = api_product.price;
-            }
-            displayProductCart(localCart.cart);
-        } catch(err){
-            console.error(err);
-        }
-    }      
-}
 
 /**
  * Function POST API 
@@ -96,7 +69,14 @@ let localCart = new Cart();
 localCart.sortByID();
 
 // Récuperation des data API et affichage
-await DisplayCartApi(localCart.cart);
+if (localCart === null || localCart == 0) {
+    localCart.CalculTotalQuantityPrice();
+} else {
+    for (let i = 0; i < localCart.cart.length; i++) {
+        await displayProductApi(localCart.cart[i].id, "cart",localCart.cart[i].color, localCart.cart[i].quantity);
+    }
+}
+
 
 // Calcul du nombre d'articles et prix totaux du panier
 localCart.CalculTotalQuantityPrice();
